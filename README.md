@@ -1,11 +1,7 @@
-# PFTC_template
+# PFTC6 Group 1
 
-This GitHub repository is a template repo for the PFTC courses.
+This GitHub repository is for the Group 1 work for the PFTC6 in Aurland, Norway, 2022.
 For more information about PFTC see [here](https://plantfunctionaltraitscourses.w.uib.no/).
-
-This repo is aimed at data sciences in ecology, but can also be used in other fields.
-
-To use the template click on the green button "use this template" and follow the instructions on GitHub.
 
 
 ## Folder sturcture
