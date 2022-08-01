@@ -49,7 +49,42 @@ library(readxl)
 
 
 # Code to fix validation issues
+rules <- validator(
 
+  # check variable types
+  is.character(site),
+  is.character(taxon),
+  is.character(project),
+  is.character(experiment),
+
+  is.numeric(plotID),
+  is.numeric(Individual_nr),
+  is.numeric(elevation_m_asl),
+  is.numeric(plant_height),
+  is.numeric(bulk_nr_leaves),
+
+  is.numeric(length_cm),
+  is.numeric(wet_mass_g),
+  is.numeric(leaf_thickness_1_mm),
+  is.numeric(leaf_thickness_2_mm),
+  is.numeric(leaf_thickness_3_mm),
+
+  #Site Matching
+  if (siteID == c("Ulv", "Gud", "Skj")) project <= "Incline",
+  if (siteID == "Ulv") day <= 24,
+  if (siteID == "Gud") day <= 26,
+  if (siteID == "Skj") day <= 30,
+  if (siteID == "Ulv") elevation_m_asl <= 1208,
+  if (siteID == "Gud") elevation_m_asl <= 1213,
+  if (siteID == "Skj") elevation_m_asl <= 1088,
+
+  #Check ranges
+  plotID %in% c(1:7),
+  leaf_thickness_1_mm %in% c(0:0.7),
+  leaf_thickness_2_mm %in% c(0:0.7),
+  leaf_thickness_3_mm %in% c(0:0.7)
+
+)
 
 # Filter to INCLINE trait data
 data <- data %>%
