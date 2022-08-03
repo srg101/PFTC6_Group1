@@ -2,18 +2,16 @@
 
 # Trait data is stored on a shared google spreadsheet for all projects contributing to the trait wheel.
 
-
-# Load packages
+# # Load packages
 # install.packages("googlesheets4")
 # install.packages("tidyverse")
 # install.packages("osfr")
-# Problems with normal dataDownloader package, install from here instead
-# remotes::install_github("nyuglobalties/osfr@fix/use-wb-asset-id")
+# #Problems with normal dataDownloader package, install from here instead
+#remotes::install_github("Between-the-Fjords/dataDownloader")
 # install.packages("lubridate")
-# install.packages("tidyverse")
 # install.packages("validate")
-# install.packagse("readxl")
-# NB. You will need to configure googlesheets authentication to your google account
+# install.packages("readxl")
+# #NB. You will need to configure googlesheets authentication to your google account
 library(googlesheets4)
 library(tidyverse)
 library(osfr)
@@ -91,3 +89,5 @@ data <- data %>%
   filter(project == "Incline")
 
 # Write data to cleaned folder
+write_csv(data, "clean_data/clean_data.csv")
+
