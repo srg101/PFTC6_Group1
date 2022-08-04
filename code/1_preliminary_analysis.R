@@ -4,7 +4,7 @@ library(ggplot2)
 
 # read clean data
 
-data<-read_csv("clean_data/clean_data.csv")
+data<-read_csv("clean_data/cleaned_traits_20220802.csv")
 
 # summary numbers for Joshua
 
@@ -25,7 +25,9 @@ data<-data %>% mutate(taxon = ifelse(taxon == "Salix herbaceae", "Salix herbacea
 
 #remove non priority species from data
 
-data<-data %>% filter(taxon %in% sp_list$Species)
+data<-data %>% filter(taxon %in% sp_list$Species, project == "Incline")
+
+
 
 # some NAs for treatment, and an N experiment, and sites, remove for now but will be fixed in proper cleaning
 
