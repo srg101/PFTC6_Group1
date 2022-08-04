@@ -4,11 +4,12 @@ library(ggplot2)
 library(lme4)
 library(sjPlot)
 library(lmerTest)
+library(MuMIn)
 
 
 # read clean data
 
-data<-read_csv("clean_data/cleaned_traits_20220802.csv")
+data<-read_csv("clean_data/PFTC6_Norway_Leaf_traits_2022_cleaned_v1.csv")
 
 # summary numbers for Joshua
 
@@ -159,23 +160,209 @@ data %>% filter(taxon %in% c("Bistorta vivipara", "Carex bigelowii", "Poa alpina
 
 #ggsave("outputs/cherry_picked_sla.png", height = 6, width = 6)
 
+#---------------------------#
+# ULV variance partitioning #
+
+# height
+
+data_ulv <- data %>% filter(siteID == 'Ulv')
+data_gud <- data %>% filter(siteID == 'Gud')
+data_skj <- data %>% filter(siteID == 'Skj')
 
 
+ft_height<-lmer(plant_height ~ 1+ (1|lifeform/taxon/experiment), data = data_ulv)
+summary(ft_height)
 
-zz<-left_join(zz, select(sp_list, c(Species, `G/F`)), by = c("taxon" = "Species")) %>% rename(lifeform = `G/F`)
+r.squaredGLMM(ft_height)
+
+var_height <- select(as.data.frame(VarCorr(ft_height)), c(grp,vcov)) %>% rename(level = grp)
+
+var_height <- var_height %>% mutate(RE = c( 'Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_height = vcov)
+
+var_height$RE<-factor(var_height$RE, levels = c( 'Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_height, aes(fill=RE,x="", y=variance_height))+
+  geom_col(position = "fill") + theme_classic()
+
+# leaf area
 
 
-ggplot(xx, aes(experiment, average_thickness, group = taxon, colour = taxon)) +geom_point() +geom_line(col = "grey") +facet_wrap(~factor(siteID, levels = c("Ulv", "Gud", "Skj")))
+ft_la<-lmer(log(leaf_area_cm2) ~ 1+ (1|lifeform/taxon/experiment), data = data_ulv)
+summary(ft_la)
 
-ggplot(zz, aes(experiment, mean_thickness #, fill = lifeform
-)) +geom_boxplot() +facet_wrap(~siteID)
+r.squaredGLMM(ft_la)
+
+var_la <- select(as.data.frame(VarCorr(ft_la)), c(grp,vcov)) %>% rename(level = grp)
+
+var_la <- var_la %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_la = vcov)
+
+var_la$RE<-factor(var_la$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
 
 
-ft<-lmer(plant_height ~ 1+ (1|lifeform/taxon/siteID/experiment), data = data)
-summary(ft)
-
-ft<-lmer(average_thickness ~ experiment*lifeform + siteID+(experiment|taxon), data = xx)
-summary(ft)
+ggplot(var_la, aes(fill=RE,x="", y=variance_la))+
+  geom_col(position = "fill") + theme_classic()
 
 
+# thickness
 
+
+ft_thick<-lmer(mean_thickness ~ 1+ (1|lifeform/taxon/experiment), data = data_ulv)
+summary(ft_thick)
+
+r.squaredGLMM(ft_thick)
+
+var_thick <- select(as.data.frame(VarCorr(ft_thick)), c(grp,vcov)) %>% rename(level = grp)
+
+var_thick <- var_thick %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_thick = vcov)
+
+var_thick$RE<-factor(var_thick$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_thick, aes(fill=RE,x="", y=variance_thick))+
+  geom_col(position = "fill") + theme_classic()
+
+all <- bind_cols(var_thick, val_la = var_la$variance_la, var_height=var_height$variance_height)
+
+all <- pivot_longer(all, cols=c(1,3,4), names_to = "trait")
+
+ulv_plots<-ggplot(all, aes(fill=RE,x=trait, y=value))+
+  geom_col(position = "fill") + theme_classic()+
+  ylab("Proportion variance explained")+
+  xlab("")+ggtitle('Ulvehagen')+scale_x_discrete(labels = c('Leaf area', 'Height', 'Leaf thickness'))
+
+
+#---------------------------------#
+# GUD variance partitioning plots #
+ft_height<-lmer(plant_height ~ 1+ (1|lifeform/taxon/experiment), data = data_gud)
+summary(ft_height)
+
+r.squaredGLMM(ft_height)
+
+var_height <- select(as.data.frame(VarCorr(ft_height)), c(grp,vcov)) %>% rename(level = grp)
+
+var_height <- var_height %>% mutate(RE = c( 'Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_height = vcov)
+
+var_height$RE<-factor(var_height$RE, levels = c( 'Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_height, aes(fill=RE,x="", y=variance_height))+
+  geom_col(position = "fill") + theme_classic()
+
+# leaf area
+
+
+ft_la<-lmer(log(leaf_area_cm2) ~ 1+ (1|lifeform/taxon/experiment), data = data_gud)
+summary(ft_la)
+
+r.squaredGLMM(ft_la)
+
+var_la <- select(as.data.frame(VarCorr(ft_la)), c(grp,vcov)) %>% rename(level = grp)
+
+var_la <- var_la %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_la = vcov)
+
+var_la$RE<-factor(var_la$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
+
+
+ggplot(var_la, aes(fill=RE,x="", y=variance_la))+
+  geom_col(position = "fill") + theme_classic()
+
+
+# thickness
+
+
+ft_thick<-lmer(mean_thickness ~ 1+ (1|lifeform/taxon/experiment), data = data_gud)
+summary(ft_thick)
+
+r.squaredGLMM(ft_thick)
+
+var_thick <- select(as.data.frame(VarCorr(ft_thick)), c(grp,vcov)) %>% rename(level = grp)
+
+var_thick <- var_thick %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_thick = vcov)
+
+var_thick$RE<-factor(var_thick$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_thick, aes(fill=RE,x="", y=variance_thick))+
+  geom_col(position = "fill") + theme_classic()
+
+all <- bind_cols(var_thick, val_la = var_la$variance_la, var_height=var_height$variance_height)
+
+all <- pivot_longer(all, cols=c(1,3,4), names_to = "trait")
+
+gud_plots<-ggplot(all, aes(fill=RE,x=trait, y=value))+
+  geom_col(position = "fill") + theme_classic()+
+  ylab("Proportion variance explained")+
+  xlab("")+ggtitle('Gudmedalen')+scale_x_discrete(labels = c('Leaf area', 'Height', 'Leaf thickness'))
+
+#---------------------------#
+# SKJ variance partitioning #
+
+ft_height<-lmer(plant_height ~ 1+ (1|lifeform/taxon/experiment), data = data_skj)
+summary(ft_height)
+
+r.squaredGLMM(ft_height)
+
+var_height <- select(as.data.frame(VarCorr(ft_height)), c(grp,vcov)) %>% rename(level = grp)
+
+var_height <- var_height %>% mutate(RE = c( 'Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_height = vcov)
+
+var_height$RE<-factor(var_height$RE, levels = c( 'Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_height, aes(fill=RE,x="", y=variance_height))+
+  geom_col(position = "fill") + theme_classic()
+
+# leaf area
+
+
+ft_la<-lmer(log(leaf_area_cm2) ~ 1+ (1|lifeform/taxon/experiment), data = data_skj)
+summary(ft_la)
+
+r.squaredGLMM(ft_la)
+
+var_la <- select(as.data.frame(VarCorr(ft_la)), c(grp,vcov)) %>% rename(level = grp)
+
+var_la <- var_la %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_la = vcov)
+
+var_la$RE<-factor(var_la$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
+
+
+ggplot(var_la, aes(fill=RE,x="", y=variance_la))+
+  geom_col(position = "fill") + theme_classic()
+
+
+# thickness
+
+
+ft_thick<-lmer(mean_thickness ~ 1+ (1|lifeform/taxon/experiment), data = data_skj)
+summary(ft_thick)
+
+r.squaredGLMM(ft_thick)
+
+var_thick <- select(as.data.frame(VarCorr(ft_thick)), c(grp,vcov)) %>% rename(level = grp)
+
+var_thick <- var_thick %>% mutate(RE = c('Treatment', 'Species', 'Functional group', 'Residual')) %>%
+  select(-level) %>% rename(variance_thick = vcov)
+
+var_thick$RE<-factor(var_thick$RE, levels = c('Treatment', 'Species', 'Functional group', 'Residual'))
+
+ggplot(var_thick, aes(fill=RE,x="", y=variance_thick))+
+  geom_col(position = "fill") + theme_classic()
+
+all <- bind_cols(var_thick, val_la = var_la$variance_la, var_height=var_height$variance_height)
+
+all <- pivot_longer(all, cols=c(1,3,4), names_to = "trait")
+
+skj_plots<-ggplot(all, aes(fill=RE,x=trait, y=value))+
+  geom_col(position = "fill") + theme_classic()+
+  ylab("Proportion variance explained")+
+  xlab("")+ggtitle('Skjellingahaugen')+scale_x_discrete(labels = c('Leaf area', 'Height', 'Leaf thickness'))
+
+combined<-ulv_plots+gud_plots+skj_plots& theme(legend.position = "right")
+combined + plot_layout(guides = "collect")
+
+ggsave('combined_variance_partitioning.png', height = 5, width = 10)
