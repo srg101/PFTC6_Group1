@@ -1,6 +1,16 @@
+library(dplyr)
+library(readr)
+library(ggplot2)
+
 # read clean data
 
 data<-read_csv("clean_data/clean_data.csv")
+
+# summary numbers for Joshua
+
+# data %>% distinct(taxon) %>% summarise(total_species = n()) # 41 species
+# data %>% summarise(total_leaves = sum(bulk_nr_leaves, na.rm=T)) # 3401 leaves
+
 
 # read sampling sheet for priority species list
 
@@ -89,11 +99,15 @@ library(lme4)
 library(sjPlot)
 library(lmerTest)
 
+
 hist(sqrt(data$plant_height))
 hist(log(data$mean_thickness))
 
-ft<-lmer((plant_height) ~ experiment + siteID+(experiment|taxon), data = data)
+ft<-lmer(plant_height ~ 1+ (1|lifeform/taxon/siteID/experiment), data = data)
 summary(ft)
+
+
+
 
 ft<-lmer(average_thickness ~ experiment*lifeform + siteID+(experiment|taxon), data = xx)
 summary(ft)
@@ -101,6 +115,8 @@ summary(ft)
 
 
 # calculate the average thickness
+
+# some numbers for Joshua for the presentation
 
 
 
