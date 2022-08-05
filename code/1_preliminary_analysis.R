@@ -54,24 +54,24 @@ xx<-left_join(xx, select(sp_list, c(Species, `G/F`)), by = c("taxon" = "Species"
 # ----------------------------------------- #
 
 # plant height
-ggplot(data, aes(experiment, plant_height, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID, scales = "free") + theme_classic() +
+ggplot(data, aes(experiment, plant_height, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID) + theme_classic() +
   scale_fill_manual(values = c("#FF6F59","#AB92BF","#C2E9AF"))+labs(y = "Plant height (mm)", x = "Treatment")
 #ggsave("outputs/height_experiment_site.png", height = 4, width = 5)
 
-# SLA
-ggplot(data, aes(experiment, mean_thickness, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID, scales = "free") + theme_classic() +
+# thickness
+ggplot(data, aes(experiment, mean_thickness, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID) + theme_classic() +
   scale_fill_manual(values = c("#FF6F59","#AB92BF","#C2E9AF"))+labs(y = "Mean leaf thickness (mm)", x = "Treatment")
 #ggsave("outputs/thickness_experiment_site.png", height = 4, width = 5)
 
-# SLA
-ggplot(data, aes(experiment, leaf_area_cm2, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID, scales = "free") + theme_classic() +
+# leaf area
+ggplot(data, aes(experiment, leaf_area_cm2, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID) + theme_classic() +
   scale_fill_manual(values = c("#FF6F59","#AB92BF","#C2E9AF"))+labs(y = "Leaf area (cm2)", x = "Treatment")
 #ggsave("outputs/leafarea_experiment_site.png", height = 4, width = 5)
 
-# SLA
-ggplot(data, aes(experiment, sla_cm2_g, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID, scales = "free") + theme_classic() +
+# sla
+ggplot(data, aes(experiment, sla_cm2_g, fill = siteID)) +geom_boxplot() +facet_wrap(~siteID) + theme_classic() +
   scale_fill_manual(values = c("#FF6F59","#AB92BF","#C2E9AF"))+labs(y = "Specific leaf area (cm2/g)", x = "Treatment")
-#ggsave("outputs/sla_experiment_site.png", height = 5, width = 5)
+ggsave("outputs/sla_experiment_site.png", height = 5, width = 5)
 
 
 # individual plant heights by species and site
